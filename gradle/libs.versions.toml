@@ -1,0 +1,28 @@
+# Совместимость (https://kotlinlang.org/docs/multiplatform/multiplatform-compatibility-guide.html):
+#   Kotlin 2.4.20–2.4.21 ↔ Gradle 7.6.3–9.7.0, AGP 8.5.2–9.3.1, Xcode 26.4.
+# MapLibre Compose 0.20.0 собран с Kotlin 2.4.20 и Compose Multiplatform 1.12.1.
+[versions]
+kotlin = "2.4.21"
+agp = "9.3.1"
+compose-multiplatform = "1.12.2"
+maplibre-compose = "0.20.0"
+androidx-activity = "1.13.0"
+
+android-compileSdk = "37"
+android-targetSdk = "36"
+android-minSdk = "28"
+
+[libraries]
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-multiplatform" }
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
+maplibre-compose = { module = "org.maplibre.compose:maplibre-compose", version.ref = "maplibre-compose" }
+maplibre-compose-runtime-opengl-android = { module = "org.maplibre.compose:maplibre-compose-runtime-opengl-android", version.ref = "maplibre-compose" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

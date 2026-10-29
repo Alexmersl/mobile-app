@@ -4,3 +4,43 @@
 *.jks
 *.keystore
 local.properties
+
+# Gradle / Kotlin
+.gradle/
+.kotlin/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+captures/
+*.hprof
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Android
+*.apk
+*.aab
+*.ap_
+*.dex
+.cxx/
+google-services.json
+keystore.properties
+*.pem
+
+# Xcode / iOS
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+Pods/
+*.mobileprovision
+*.p12
+*.cer
+*.certSigningRequest

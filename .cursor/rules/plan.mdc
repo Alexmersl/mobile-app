@@ -1,0 +1,14 @@
+---
+description: Binding project plan for FieldLog. Read before any work on the app.
+alwaysApply: true
+---
+
+# Project plan
+
+The agreed plan is `docs/plan.md`. Read it before planning, coding, testing, or setting up builds.
+
+- Work only on a task listed under "Задачи" in that file, in its order.
+- If a request is outside the plan, say so and stop. Do not widen scope.
+- Stack, platforms, minimum versions, and the verdict wording are fixed by the plan. Do not change them silently.
+- Dictionary statuses stay off the screen until the user accepts them.
+- Secrets never go into git.
