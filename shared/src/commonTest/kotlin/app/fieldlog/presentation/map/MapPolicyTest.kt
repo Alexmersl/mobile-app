@@ -3,6 +3,7 @@ package app.fieldlog.presentation.map
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -53,16 +54,22 @@ class MapPolicyTest {
     }
 
     @Test
-    fun userAgentIsSentOnlyToOpenFreeMap() {
-        val ofm = requestHeaders("https://tiles.openfreemap.org/planet/20261025_080012_pt/5/19/9.pbf")
-        assertEquals(mapOf("User-Agent" to MapDefaults.USER_AGENT), ofm)
-        assertEquals(emptyMap(), requestHeaders("https://example.com/tiles/1.pbf"))
+    fun userAgentIsBuiltFromVersionAndAppId() {
+        assertEquals("FieldLog/1.2.3 (app.example; Android+iOS)", buildUserAgent("1.2.3", "app.example"))
+        assertEquals("FieldLog/0.1.0 (app.fieldlog; Android+iOS)", MapDefaults.USER_AGENT)
     }
 
     @Test
-    fun userAgentIdentifiesTheApp() {
-        assertTrue(MapDefaults.USER_AGENT.startsWith("FieldLog/"))
-        assertTrue("app.fieldlog" in MapDefaults.USER_AGENT)
+    fun userAgentContainsAppVersionAndId() {
+        assertTrue("FieldLog/0.1.0 (app.fieldlog" in MapDefaults.USER_AGENT)
+    }
+
+    @Test
+    fun onlyOpenFreeMapUrlsGetTheAppUserAgent() {
+        assertTrue(isOpenFreeMapUrl("https://tiles.openfreemap.org/planet/20261025_080012_pt/5/19/9.pbf"))
+        assertTrue(isOpenFreeMapUrl(MapDefaults.STYLE_URL))
+        assertFalse(isOpenFreeMapUrl("https://example.com/tiles/1.pbf"))
+        assertFalse(isOpenFreeMapUrl("https://tiles.openfreemap.org.evil.example/1.pbf"))
     }
 
     @Test

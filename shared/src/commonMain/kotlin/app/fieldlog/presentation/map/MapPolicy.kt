@@ -25,11 +25,17 @@ object MapDefaults {
     /** Хост, которому нужен уникальный User-Agent приложения (условия OpenFreeMap). */
     const val OPENFREEMAP_URL_PREFIX = "https://tiles.openfreemap.org/"
 
+    /** Версия приложения для User-Agent. */
+    const val APP_VERSION = "0.1.0"
+
+    /** Временный id приложения (план: `app.fieldlog`). */
+    const val APP_ID = "app.fieldlog"
+
     /**
      * Уникальный User-Agent приложения (OpenFreeMap требует его при загрузке районов,
      * в том числе просит указывать его у всех запросов приложения).
      */
-    const val USER_AGENT = "FieldLog/0.1.0 (app.fieldlog; Android+iOS)"
+    val USER_AGENT: String = buildUserAgent(APP_VERSION, APP_ID)
 
     /**
      * Видимая атрибуция. OpenFreeMap требует «OpenFreeMap © OpenMapTiles Data from OpenStreetMap»;
@@ -58,16 +64,14 @@ fun initialCamera(location: GeoPoint?): CameraTarget =
 fun cameraOnLocation(location: GeoPoint, currentZoom: Double): CameraTarget =
     CameraTarget(location, max(currentZoom, MapDefaults.LOCATION_ZOOM))
 
+/** Строка User-Agent приложения: `FieldLog/<версия> (<id>; Android+iOS)`. */
+fun buildUserAgent(version: String, appId: String): String = "FieldLog/$version ($appId; Android+iOS)"
+
 /**
- * Заголовки для запроса карты. User-Agent приложения добавляется ко всем запросам к OpenFreeMap
- * (стиль, тайлы, шрифты, спрайты). Чужим хостам заголовки не отдаются.
+ * Запросы к OpenFreeMap (стиль, тайлы, шрифты, спрайты) идут с User-Agent приложения.
+ * Чужие хосты остаются на стандартном HTTP-клиенте движка.
  */
-fun requestHeaders(url: String): Map<String, String> =
-    if (url.startsWith(MapDefaults.OPENFREEMAP_URL_PREFIX)) {
-        mapOf("User-Agent" to MapDefaults.USER_AGENT)
-    } else {
-        emptyMap()
-    }
+fun isOpenFreeMapUrl(url: String): Boolean = url.startsWith(MapDefaults.OPENFREEMAP_URL_PREFIX)
 
 /** Разрешение на геолокацию в терминах приложения (без типов библиотеки). */
 enum class LocationAccess {
