@@ -78,4 +78,23 @@ class OpenFreeMapProviderTest {
         assertEquals(false, mustRevalidate("public, max-age=5"))
         assertEquals(false, mustRevalidate(null))
     }
+
+    @Test
+    fun offlinePackSkipsIdeographGlyphRangesOnly() {
+        fun font(range: String) = "https://tiles.openfreemap.org/fonts/Noto%20Sans%20Regular/$range.pbf"
+        assertEquals(0, glyphRangeStart(font("0-255")))
+        assertEquals(19968, glyphRangeStart(font("19968-20223")))
+        // Латиница, кириллица, знаки остаются.
+        assertEquals(false, isSkippedOfflineGlyphRange(font("0-255")))
+        assertEquals(false, isSkippedOfflineGlyphRange(font("1024-1279")))
+        assertEquals(false, isSkippedOfflineGlyphRange(font("11520-11775")))
+        // С U+2E00 и выше — иероглифы, хангыль, формы представления: пропускаются.
+        assertEquals(true, isSkippedOfflineGlyphRange(font("11776-12031")))
+        assertEquals(true, isSkippedOfflineGlyphRange(font("19968-20223")))
+        assertEquals(true, isSkippedOfflineGlyphRange(font("65280-65535")))
+        // Не глифы — не трогаем.
+        assertNull(glyphRangeStart("https://tiles.openfreemap.org/planet/2026/14/9904/5121.pbf"))
+        assertNull(glyphRangeStart("https://tiles.openfreemap.org/fonts/x/broken.pbf"))
+        assertEquals(false, isSkippedOfflineGlyphRange("https://tiles.openfreemap.org/styles/liberty"))
+    }
 }

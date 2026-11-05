@@ -88,6 +88,8 @@ fun MapScreen(modifier: Modifier = Modifier) {
 
     AutoCenterOnFirstFix(mapState, locationState)
 
+    var offlineMode by remember { mutableStateOf(OfflineMode.Browse) }
+
     Box(modifier = modifier.fillMaxSize()) {
         MaplibreMap(state = mapState, modifier = Modifier.fillMaxSize()) {
             Box(Modifier.fillMaxSize().padding(8.dp)) {
@@ -96,7 +98,10 @@ fun MapScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        Column(
+        OfflineRegionLayer(mapState = mapState, mode = offlineMode, onModeChange = { offlineMode = it })
+
+        // Кнопка положения на время выбора района и списка прячется: там нижняя панель.
+        if (offlineMode == OfflineMode.Browse) Column(
             modifier = Modifier.align(Alignment.BottomEnd).padding(end = 8.dp, bottom = 40.dp),
             horizontalAlignment = Alignment.End,
         ) {
