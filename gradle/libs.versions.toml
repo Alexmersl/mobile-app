@@ -7,6 +7,11 @@ agp = "9.3.1"
 compose-multiplatform = "1.12.2"
 maplibre-compose = "0.20.0"
 androidx-activity = "1.13.0"
+# Хранение меток (задача 6). 2.4.1 — последняя стабильная (2026-10-06); с 2.3.2 плагин совместим
+# с новым DSL AGP 9 (com.android.kotlin.multiplatform.library).
+sqldelight = "2.4.1"
+# Та же версия, что уже приходит транзитивно через Compose и MapLibre (Flow используется в карте).
+kotlinx-coroutines = "1.11.0"
 
 android-compileSdk = "37"
 android-targetSdk = "36"
@@ -19,6 +24,13 @@ compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.re
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
 maplibre-compose = { module = "org.maplibre.compose:maplibre-compose", version.ref = "maplibre-compose" }
 maplibre-compose-runtime-opengl-android = { module = "org.maplibre.compose:maplibre-compose-runtime-opengl-android", version.ref = "maplibre-compose" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqldelight" }
+sqldelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
+sqldelight-native-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight" }
+sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -26,3 +38,4 @@ android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

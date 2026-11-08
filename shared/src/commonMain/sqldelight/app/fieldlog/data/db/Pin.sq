@@ -1,0 +1,64 @@
+-- Метка итерации 1 (docs/plan.md, задача 6). Вида и ачивок здесь нет: они придут в итерации 2
+-- миграцией (см. комментарий в конце файла).
+--
+-- Стабильный id — UUID строкой, его выдаёт приложение. owner_id — локальный владелец
+-- ('local'), пока нет аккаунта; при появлении входа метки перепривязываются к аккаунту.
+-- Коды категории — отдельный стабильный контракт хранилища, а не имена enum в Kotlin.
+CREATE TABLE Pin (
+    id TEXT NOT NULL PRIMARY KEY,
+    owner_id TEXT NOT NULL,
+    category TEXT NOT NULL CHECK (category IN ('mushroom', 'berry', 'plant', 'animal', 'place')),
+    latitude REAL NOT NULL CHECK (latitude BETWEEN -90.0 AND 90.0),
+    longitude REAL NOT NULL CHECK (longitude BETWEEN -180.0 AND 180.0),
+    -- Время находки: миллисекунды от эпохи Unix.
+    found_at INTEGER NOT NULL,
+    -- Путь или идентификатор фото; у места фото не нужно.
+    photo TEXT,
+    note TEXT NOT NULL DEFAULT '',
+    -- Мягкое удаление: 0 — пин на карте, 1 — удалён. Строка остаётся, чтобы в итерации 2
+    -- очередь синхронизации узнала об удалении.
+    deleted INTEGER NOT NULL DEFAULT 0 CHECK (deleted IN (0, 1)),
+    CHECK (category = 'place' OR photo IS NOT NULL)
+);
+
+CREATE INDEX pin_owner_visible ON Pin(owner_id, deleted, found_at);
+
+-- Только вставка, без OR REPLACE и без OR IGNORE: существующий id не перезаписывается (через
+-- репозиторий нельзя подменить фото, категорию и координаты сохранённой метки), а нарушение
+-- CHECK не глотается молча. Дубликат репозиторий отсекает до вставки, в той же транзакции.
+insert:
+INSERT INTO Pin(id, owner_id, category, latitude, longitude, found_at, photo, note, deleted)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+changes:
+SELECT changes();
+
+-- Пин на карте: без удалённых, новые сверху.
+selectVisible:
+SELECT * FROM Pin WHERE owner_id = ? AND deleted = 0 ORDER BY found_at DESC, id;
+
+selectVisibleById:
+SELECT * FROM Pin WHERE id = ? AND deleted = 0;
+
+-- Запись вместе с удалёнными: для очереди синхронизации (итерация 2) и тестов.
+selectAnyById:
+SELECT * FROM Pin WHERE id = ?;
+
+-- Дописывание заметки: единственное изменение содержимого. Фото, вид, категорию, координаты
+-- и время запрос не трогает; удалённой метке заметку не дописывают.
+updateNote:
+UPDATE Pin SET note = ? WHERE id = ? AND deleted = 0;
+
+markDeleted:
+UPDATE Pin SET deleted = 1 WHERE id = ? AND deleted = 0;
+
+-- Итерация 2 (не делается сейчас). Вид добавляется миграцией 1.sqm (1 -> 2) без пересоздания
+-- таблицы:
+--   ALTER TABLE Pin ADD COLUMN species_kind TEXT;  -- 'dictionary' | 'custom'
+--   ALTER TABLE Pin ADD COLUMN species_id TEXT;
+-- Старые метки получают NULL, данные не теряются. В CREATE TABLE этого файла новые столбцы
+-- ставятся В КОНЕЦ списка столбцов (после deleted): ALTER ... ADD COLUMN добавляет их в конец,
+-- и verifyMigrations сравнивает порядок. После правки: generateCommonMainPinDatabaseSchema
+-- создаёт databases/2.db, verifyCommonMainPinDatabaseMigration сверяет 1.db + 1.sqm с 2.db.
+-- Перепривязка к аккаунту:
+--   UPDATE Pin SET owner_id = :accountId WHERE owner_id = 'local';
